@@ -19,50 +19,29 @@ app.get('/', function(req, res) {
 
 // Your first API endpoint
 
-let urlDatabase = [];
-let nextShortUrl = 1;
+let urls = [];
+let count = 1;
 
 app.post('/api/shorturl', (req, res) => {
-  const originalUrl = req.body.url;
-
-  try {
-    new URL(originalUrl);
-  } catch (error) {
-    return res.json({ error: 'Invalid URL' });
-  }
-
-  const existingUrl = urlDatabase.find(item => item.original_url === originalUrl);
-  if (existingUrl) {
-    return res.json({
-      original_url: existingUrl.original_url,
-      short_url: existingUrl.short_url
-    });
-  }
-
-  const newUrl = {
-    original_url: originalUrl,
-    short_url: nextShortUrl
-  };
-
-  urlDatabase.push(newUrl);
+  const url = req.body.url;
+  const urlRegex = /^https?:\/\/\w+/;
   
-  res.json({
-    original_url: originalUrl,
-    short_url: nextShortUrl
-  });
+  if (!urlRegex.test(url)) {
+    return res.json({ error: 'invalid url' });
+  }
 
-  nextShortUrl++;
+  const found = urls.find(u => u.original === url);
+  if (found) return res.json(found);
+
+  const newUrl = { original_url: url, short_url: count };
+  urls.push(newUrl);
+  res.json(newUrl);
+  count++;
 });
 
-app.get('/api/shorturl/:short_url', (req, res) => {
-  const shortUrl = parseInt(req.params.short_url);
-  const urlEntry = urlDatabase.find(item => item.short_url === shortUrl);
-
-  if (!urlEntry) {
-    return res.json({ error: 'No short URL found for the given input' });
-  }
-
-  res.redirect(urlEntry.original_url);
+app.get('/api/shorturl/:id', (req, res) => {
+  const url = urls.find(u => u.short_url == req.params.id);
+  url ? res.redirect(url.original_url) : res.json({ error: 'No short URL found' });
 });
 
 app.listen(port, function() {
