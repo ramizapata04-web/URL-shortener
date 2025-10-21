@@ -30,7 +30,7 @@ app.post('/api/shorturl', (req, res) => {
     return res.json({ error: 'invalid url' });
   }
 
-  const found = urls.find(u => u.original === url);
+  const found = urls.find(u => u.original_url === url);
   if (found) return res.json(found);
 
   const newUrl = { original_url: url, short_url: count };
