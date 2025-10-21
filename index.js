@@ -28,7 +28,7 @@ app.post('/api/shorturl', (req, res) => {
   try {
     new URL(originalUrl);
   } catch (error) {
-    return res.json({ error: 'invalid url' });
+    return res.json({ error: 'Invalid URL' });
   }
 
   const existingUrl = urlDatabase.find(item => item.original_url === originalUrl);
